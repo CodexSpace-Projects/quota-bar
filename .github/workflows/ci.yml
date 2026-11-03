@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build-and-test:
+    runs-on: macos-15
+    timeout-minutes: 30
+    outputs:
+      package-label: ${{ steps.package.outputs.label }}
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Report Swift toolchain
+        run: swift --version
+      - name: Parser checks and debug build
+        env:
+          SKIP_LIVE_CODEX_CHECK: "1"
+        run: ./scripts/test.sh
+      - name: Build universal app
+        run: ./scripts/build-app.sh dist
+      - name: Package and verify development build
+        id: package
+        run: |
+          VERSION=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' Resources/macOS/Info.plist)
+          LABEL="${VERSION}-ci-${GITHUB_RUN_NUMBER}-${GITHUB_SHA:0:7}"
+          ./scripts/package-app.sh dist "$LABEL"
+          echo "label=$LABEL" >> "$GITHUB_OUTPUT"
+      - name: Upload development package
+        id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: quota-bar-macos-${{ github.run_number }}-${{ github.run_attempt }}
+          path: |
+            dist/QuotaBar-*.zip
+            dist/QuotaBar-*.zip.sha256
+          if-no-files-found: error
+          retention-days: 14
+
+  publish-release:
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Download verified macOS package
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ needs.build-and-test.outputs.artifact-id }}
+          path: dist
+          merge-multiple: true
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PACKAGE_LABEL: ${{ needs.build-and-test.outputs.package-label }}
+        run: ./scripts/publish-build-release.sh dist "$PACKAGE_LABEL"

@@ -1,0 +1,45 @@
+name: Bug report
+description: Report something that is not working in QuotaBar
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting this. Never include credentials or raw authenticated Codex traffic.
+  - type: input
+    id: version
+    attributes:
+      label: QuotaBar version
+      placeholder: 1.2.0
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version and Mac model
+      placeholder: macOS 15.5, Apple M2
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Include the exact behaviour and any safe error message.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open QuotaBar
+        2. Click Refresh
+        3. …
+    validations:
+      required: true

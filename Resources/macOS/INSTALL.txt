@@ -1,0 +1,29 @@
+QuotaBar
+
+安装应用
+1. 将 "QuotaBar.app" 移到 /Applications（应用程序）。
+2. 打开应用，菜单栏会出现用量图标。
+3. 中文默认跟随系统；也可在 Settings（设置）→ Language（语言）中选择“简体中文”。
+4. 从 Codex Meter 升级时，先退出并移除旧的 "Codex Meter.app"。已有设置、账号和历史数据会保留。
+
+首次打开被 macOS 阻止时
+本社区版本采用临时签名，尚未通过 Apple 公证。
+确认下载来源为本项目后，先尝试打开一次，再前往：
+系统设置 → 隐私与安全性 → 仍要打开，并按提示确认。
+Apple 官方说明：https://support.apple.com/zh-cn/102445
+
+APP
+1. Move "QuotaBar.app" to /Applications and open it.
+2. Language follows your system by default. Choose English or 简体中文 in Settings → Language.
+   When upgrading from Codex Meter, quit and remove the old "Codex Meter.app". Settings, profiles and history are retained.
+3. This community build is ad-hoc signed and not Apple-notarized. If blocked after the first launch attempt, use System Settings → Privacy & Security → Open Anyway for a download you trust from this project.
+   Apple instructions: https://support.apple.com/102445
+
+CLI（可选 / OPTIONAL）
+将 "quota-bar" 放到 PATH 目录，例如 / Move it somewhere on your PATH, for example:
+
+  install -m 755 quota-bar /usr/local/bin/quota-bar
+
+运行 / Run "quota-bar --help".
+CLI 输出保持英文及稳定 JSON，便于脚本使用。
+The CLI keeps English text and stable JSON output for scripting.
